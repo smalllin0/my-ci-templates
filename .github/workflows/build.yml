@@ -1,0 +1,34 @@
+name: Reuseable ESP-IDF Build
+
+on:
+  workflow_call:
+    inputs:
+      esp_idf_version:
+        type: string
+        default: 'v6.1.0'
+      targets:
+        type: string
+        default: '["esp32c3"]'
+      example_path:
+        type: string
+        default: 'examples/basic'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest?????
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(inputs.targets) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Build ${{ matrix.target }}
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: ${{ inputs.esp_idf_version }}
+          target: ${{ matrix.target }}
+          path: ${{ inputs.example_path }}
+          command: idf.py build
