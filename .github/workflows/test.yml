@@ -19,10 +19,13 @@ jobs:
           cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug    
 
       - name: Build
-        run: cmake --build build
+        run: 
+          cmake --build examples/build
       
       - name: Test
-        run: ctest --test-dir build --output-on-failure
+        run: 
+          ctest --test-dir examples/build --output-on-failure
+        
 
 # 第一步 uses：使用`uses` 字段拉取代码
 # 第二步 Configure：安装编译工具
