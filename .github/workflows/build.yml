@@ -1,3 +1,5 @@
+name: ESP-IDF 固件构建
+
 on:
   workflow_call:
     inputs:

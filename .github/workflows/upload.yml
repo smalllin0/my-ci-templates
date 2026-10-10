@@ -1,4 +1,4 @@
-name: 上传至ComponentReg
+name: 上传组件到组件注册表
 
 on:
   workflow_call:
