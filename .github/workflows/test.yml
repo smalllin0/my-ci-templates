@@ -14,17 +14,14 @@ jobs:
 
       - name: Configure                                       # name 给步骤起名，方便在GitHub日志中查看 
         run: |                                                # run，：在虚拟机终端中执行的shell命令
-          cd examples
-          rm -rf build
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug    
+          rm -rf test/build
+          cmake -B test/build -G Ninja -DCMAKE_BUILD_TYPE=Debug    
 
       - name: Build
-        run: 
-          cmake --build examples/build
+        run: cmake --build test/build
       
       - name: Test
-        run: 
-          ctest --test-dir examples/build --output-on-failure
+        run: ctest --test-dir test/build --output-on-failure
         
 
 # 第一步 uses：使用`uses` 字段拉取代码
