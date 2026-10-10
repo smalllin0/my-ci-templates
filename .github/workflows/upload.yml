@@ -14,17 +14,22 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     container:
-      image: espressif/idf:v6.1        # ★ 用 ESP-IDF 官方镜像
+      image: espressif/idf:v6.1
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify compote
+      - name: Debug environment
+        shell: bash
         run: |
+          echo "IDF_PATH=$IDF_PATH"
+          ls $IDF_PATH/export.sh && echo "export.sh exists"
+
+      - name: Upload to Component Registry
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh
           which compote
           compote --version
-
-      - name: Upload component
-        run: |
           compote component upload \
             --namespace ${{ inputs.namespace }} \
             --name ${{ github.event.repository.name }}
