@@ -1,34 +1,46 @@
-name: Reuseable ESP-IDF Build       # 工作流名称
-
 on:
-  workflow_call:                    # 被其他GitHub Actions工作流调用，非 push 或 pull_request 触发
-    inputs:                         # 输入参数定义
-      esp_idf_version:              # ESP IDF版本
+  workflow_call:
+    inputs:
+      esp_idf_version:
         type: string
-        default: 'v6.1.0'
-      targets:                      # 编译目标芯片
+        default: 'v6.1'                # ★ 和 Docker 镜像 tag 一致（不是 v6.1.0）
+      targets:
         type: string
         default: '["esp32c3"]'
-      example_path:                 # 编译工程目录路径
+      example_path:
         type: string
         default: 'examples/basic'
 
-jobs:                               
-  build:                                                    # build 作业定义（工作流要执行的主要任务）
-    runs-on: ubuntu-latest                                  # 作业运行在 Github 的虚拟机上
-    strategy:                                               # 矩阵策略matrix
-      fail-fast: false                                      #   即使一个inputs.targets中的一个芯片失败，其他也继续跑完  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:${{ inputs.esp_idf_version }}    # ★ 容器方式
+    strategy:
+      fail-fast: false
       matrix:
         target: ${{ fromJson(inputs.targets) }}
-    steps:                                                  # 将代码仓库拉取到运行环境中
-      - uses: actions/checkout@v4                           # uses 表示使用某个Action，当前由Github维护
+
+    steps:
+      # 1. 拉代码
+      - uses: actions/checkout@v4
         with:
-          submodules: recursive                             #   如果项目中有Git子模板，也拉下来
-          
-      - name: Build ${{ matrix.target }}                    # 编译固件
-        uses: espressif/esp-idf-ci-action@v1                #   调用乐鑫官方Action 
+          submodules: recursive
+
+      # 2. 缓存 ccache（大幅加速第二次编译）
+      - name: Cache ccache
+        uses: actions/cache@v4
         with:
-          esp_idf_version: ${{ inputs.esp_idf_version }}    #   指定调用的版本
-          target: ${{ matrix.target }}                      #   当前矩阵里的芯片目标
-          path: ${{ inputs.example_path }}                  #   要编译的工程路径
-          command: idf.py build                             #   执行的编译命令
+          path: ~/.ccache
+          key: ccache-${{ matrix.target }}-${{ github.sha }}
+          restore-keys: |
+            ccache-${{ matrix.target }}-
+
+      # 3. 编译
+      - name: Build for ${{ matrix.target }}
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh               
+          cd ${{ inputs.example_path }}
+          idf.py set-target ${{ matrix.target }}
+          idf.py build
