@@ -1,6 +1,6 @@
-name: Reuseable Component Upload
+name: Reusable Component Upload
 
-on: 
+on:
   workflow_call:
     inputs:
       namespace:
@@ -13,16 +13,20 @@ on:
 jobs:
   upload:
     runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:v6.1        # ★ 用 ESP-IDF 官方镜像
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install component manager
-        run: pip install idf-component-manager
+      - name: Verify compote
+        run: |
+          which compote
+          compote --version
 
       - name: Upload component
         run: |
-          component component upload \
-          --namespace ${{ inputs.namespace }} \
-          --name ${{ github.event.repository.name }}
+          compote component upload \
+            --namespace ${{ inputs.namespace }} \
+            --name ${{ github.event.repository.name }}
         env:
           IDF_COMPONENT_API_TOKEN: ${{ secrets.IDF_COMPONENT_API_TOKEN }}
