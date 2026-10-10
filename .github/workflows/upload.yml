@@ -1,4 +1,4 @@
-name: Reusable Component Upload
+name: 上传至ComponentReg
 
 on:
   workflow_call:
