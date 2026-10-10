@@ -29,7 +29,6 @@ jobs:
         run: |
           . $IDF_PATH/export.sh
           which compote
-          compote --version
           compote component upload \
             --namespace ${{ inputs.namespace }} \
             --name ${{ github.event.repository.name }}
